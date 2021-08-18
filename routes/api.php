@@ -1,8 +1,9 @@
 <?php
 
-use App\Http\Controllers\TaskController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\TaskController;
+use App\Http\Controllers\Api\AuthenticationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,9 +15,17 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+Route::post('register', [AuthenticationController::class, 'register']);
+Route::post('login',[AuthenticationController::class, 'login']);
 
 //Protects routes
 Route::middleware(['auth:sanctum'])->group(function(){
+    //Get list of all customers
+    Route::get('customers', [AuthenticationController::class, 'index']);
+    //Logout authenticated user
+    Route::post('logout', [AuthenticationController::class, 'logout']);
+
+
     //Route to fetch all lists of tasks
     Route::get('customers/tasks',[TaskController::class, 'index']);
 
