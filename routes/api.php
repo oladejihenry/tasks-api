@@ -14,11 +14,20 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-//Route to fetch all lists of tasks
-Route::get('customers/tasks',[TaskController::class, 'index']);
-//Route to Insert Tasks into the Database
-Route::post('customers/tasks', [TaskController::class, 'store']);
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+//Protects routes
+Route::middleware(['auth:sanctum'])->group(function(){
+    //Route to fetch all lists of tasks
+    Route::get('customers/tasks',[TaskController::class, 'index']);
+
+    //Route to Insert tasks into the Database
+    Route::post('customers/tasks', [TaskController::class, 'store']);
+
+    //Route to update tasks
+    Route::put('customers/tasks/{id}', [TaskController::class, 'update']);
+
 });
+
+// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
