@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Task;
+use App\Http\Requests\TaskRequest;
 use Illuminate\Http\Request;
 
 class TaskController extends Controller
@@ -17,36 +18,17 @@ class TaskController extends Controller
 
 
     //Store tasks into the database
-    public function store(Request $request)
+    public function store(TaskRequest $request)
     {   
-        //Validating the request
-        $request->validate([
-            'title' => 'required|max:191',
-            'content' => 'required',
-            'status' => 'required',
-        ]);
-
         //Create New Task, Store the task and return in json format with status code
-        $task = new Task;
-        $task->title = $request->title;
-        $task->content = $request->content;
-        $task->status = $request->status;
-        $task->save();
+        $task = Task::create($request->validated());
 
         return response()->json(['message'=>'Task Added Successfully'], 200); 
     }
 
     //Update tasks using the ID
-    public function update(Request $request, $id)
+    public function update(TaskRequest $request, $id)
     {
-
-        //Validating the request
-        $request->validate([
-            'title' => 'required|max:191',
-            'content' => 'required',
-            'status' => 'required',
-        ]);
-
         //Update the task, Store the task and return in json format with status code
         $task = Task::find($id);
         

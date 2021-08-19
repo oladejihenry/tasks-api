@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Http\Requests\CustomerRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
@@ -19,33 +20,10 @@ class AuthenticationController extends Controller
     }
 
 
-    public function register(Request $request)
+    public function register(CustomerRequest $request)
     {
-        //Validating the request
-        $data = $request->validate([
-            'first_name' => 'required|string|max:191',
-            'last_name' =>'required|string|max:191',
-            'password' => 'required|string',
-            'role_name' => 'required|string',
-            'email' => 'required|email|max:191|unique:users,email',
-            'mobile' => 'required',
-            'birthday' => 'required',
-            'tasks' => 'required',
-            'is_notify' => 'required'
-        ]);
-
         //Creates new user
-        $user = User::create([
-            'first_name' => $data['first_name'],
-            'last_name' => $data['last_name'],
-            'password' => Hash::make($data['password']),
-            'role_name'=> $data['role_name'],
-            'email'=> $data['email'],
-            'mobile'=> $data['mobile'],
-            'birthday'=> $data['birthday'],
-            'tasks'=> $data['tasks'],
-            'is_notify'=>$data['is_notify'],
-        ]);
+        $user = User::create($request->validated());
         //issue a token after loggin in and get the plain text
         $token = $user->createToken('userToken')->plainTextToken;
 
@@ -87,21 +65,8 @@ class AuthenticationController extends Controller
     }
 
     //This update the authenticated user details
-    public function update(Request $request, $id)
+    public function update(CustomerRequest $request, $id)
     {   
-        //Validating the request
-        $data = $request->validate([
-            'first_name' => 'required|string|max:191',
-            'last_name' =>'required|string|max:191',
-            'password' => 'required|string',
-            'role_name' => 'required|string',
-            'email' => 'required|email|max:191|unique:users,email',
-            'mobile' => 'required',
-            'birthday' => 'required',
-            'tasks' => 'required',
-            'is_notify' => 'required'
-        ]);
-
         //Find the user with the id and update there details
         $user = User::find($id);
 
