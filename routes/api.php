@@ -22,6 +22,8 @@ Route::post('login',[AuthenticationController::class, 'login']);
 Route::middleware(['auth:sanctum'])->group(function(){
     //Get list of all customers
     Route::get('customers', [AuthenticationController::class, 'index']);
+    //Update authenticated users details
+    Route::put('customers/{id}', [AuthenticationController::class, 'update']);
     //Logout authenticated user
     Route::post('logout', [AuthenticationController::class, 'logout']);
 

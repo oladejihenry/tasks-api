@@ -10,8 +10,10 @@ use Carbon\Carbon;
 
 class AuthenticationController extends Controller
 {
+    //Display all the users
     public function index()
     {
+        //Get all the users, display it and return status code 200
         $users = User::all();
         return response()->json(['users'=>$users], 200);
     }
@@ -19,6 +21,7 @@ class AuthenticationController extends Controller
 
     public function register(Request $request)
     {
+        //Validating the request
         $data = $request->validate([
             'first_name' => 'required|string|max:191',
             'last_name' =>'required|string|max:191',
@@ -28,8 +31,10 @@ class AuthenticationController extends Controller
             'mobile' => 'required',
             'birthday' => 'required',
             'tasks' => 'required',
+            'is_notify' => 'required'
         ]);
 
+        //Creates new user
         $user = User::create([
             'first_name' => $data['first_name'],
             'last_name' => $data['last_name'],
@@ -39,11 +44,12 @@ class AuthenticationController extends Controller
             'mobile'=> $data['mobile'],
             'birthday'=> $data['birthday'],
             'tasks'=> $data['tasks'],
-            //'last_login' => Carbon::now()->toDateTimeString()
+            'is_notify'=>$data['is_notify'],
         ]);
-
+        //issue a token after loggin in and get the plain text
         $token = $user->createToken('userToken')->plainTextToken;
 
+        //Display all the details of user created with the token
         $response = [
             'user' => $user,
             'token' => $token,
@@ -54,11 +60,13 @@ class AuthenticationController extends Controller
 
     public function login(Request $request)
     {
+        //Validates the request
         $data = $request->validate([
             'email' => 'required|email|max:191',
             'password' => 'required|string',
         ]);
 
+        
         $user = User::where('email', $data['email'])->first();
 
         if(!$user || !Hash::check($data['password'], $user->password))
@@ -72,10 +80,54 @@ class AuthenticationController extends Controller
                 $token => $token,
             ];
 
+            $user->update(['last_login' => now()]);
+
             return response($response, 200);
         }
     }
 
+    //This update the authenticated user details
+    public function update(Request $request, $id)
+    {   
+        //Validating the request
+        $data = $request->validate([
+            'first_name' => 'required|string|max:191',
+            'last_name' =>'required|string|max:191',
+            'password' => 'required|string',
+            'role_name' => 'required|string',
+            'email' => 'required|email|max:191|unique:users,email',
+            'mobile' => 'required',
+            'birthday' => 'required',
+            'tasks' => 'required',
+            'is_notify' => 'required'
+        ]);
+
+        //Find the user with the id and update there details
+        $user = User::find($id);
+
+        //check if exists then update there details with status code
+        if($user){
+            $user->first_name = $request->first_name;
+            $user->last_name = $request->last_name;
+            $user->role_name = $request->role_name;
+            $user->email = $request->email;
+            $user->mobile = $request->mobile;
+            $user->birthday = $request->birthday;
+            $user->tasks = $request->tasks;
+            $user->is_notify = $request->is_notify;
+            $user->update();
+
+            $user->update(['last_login' => now()]);
+
+            return response()->json(['message'=>'Customer Updated Successfully'], 200); 
+        }
+        //else return customer not found
+        else{
+            return response()->json(['message'=>'No Customer Found'], 404); 
+        }
+    }
+
+    //This logs the autheticated user out and delete the token
     public function logout()
     {
         auth()->user()->tokens()->delete();
