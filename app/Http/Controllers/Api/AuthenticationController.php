@@ -55,7 +55,7 @@ class AuthenticationController extends Controller
             $token = $user->createToken('userTokenLogin')->plainTextToken;
             $response = [
                 'user' => $user,
-                $token => $token,
+                'token' => $token,
             ];
 
             $user->update(['last_login' => now()]);
